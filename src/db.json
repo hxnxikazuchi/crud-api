@@ -1,0 +1,10 @@
+{
+  "data": [
+    {
+      "id": "randomId",
+      "username": "username",
+      "age": 10,
+      "hobbies": ["skiing", "hokkey"]
+    }
+  ]
+}
