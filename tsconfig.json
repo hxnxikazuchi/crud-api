@@ -10,7 +10,7 @@
     "noUncheckedIndexedAccess": true,
     "strictNullChecks": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false,
     "outDir": "dist",
     "removeComments": true,
     "resolveJsonModule": true,
