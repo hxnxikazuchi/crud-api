@@ -1,8 +1,11 @@
 import { createServer, IncomingMessage, ServerResponse } from 'http';
 import dotenv from 'dotenv';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
+import { promises as fs } from 'fs';
 
 dotenv.config({ path: './config.env' });
+
+const USERS_FILE = `${__dirname}/users.json`;
 
 type User = {
   id: string;
@@ -49,6 +52,83 @@ const parseBody = (req: IncomingMessage): Promise<never> => {
     }
   });
 };
+
+const getUserById = async (req: IncomingMessage, res: ServerResponse, userId: string) => {
+  if (!uuidValidate(userId)) {
+    return sendJSON(res, 400, { message: 'Invalid user ID format' });
+  }
+
+  const users = await readUsersFromFile();
+
+  const user = users.find((user) => user.id === userId);
+  if (!user) {
+    return sendJSON(res, 404, { message: 'User not found' });
+  }
+
+  sendJSON(res, 200, user);
+};
+
+const createUser = async (req: IncomingMessage, res: ServerResponse) => {
+  try {
+    const userData: User = await parseBody(req);
+    const { username, age, hobbies } = userData;
+
+    if (!username || typeof age !== 'number' || !Array.isArray(hobbies)) {
+      return sendJSON(res, 400, { message: 'Missing required fields' });
+    }
+    const users = await readUsersFromFile();
+    const newUser: User = { id: uuidv4(), username, age, hobbies };
+    users.push(newUser);
+    sendJSON(res, 201, newUser);
+    await writeUsersToFile(users);
+  } catch (error) {
+    sendJSON(res, 500, { message: 'Error parsing request body' });
+  }
+};
+
+const updateUser = async (req: IncomingMessage, res: ServerResponse, userId: string) => {
+  if (!uuidValidate(userId)) {
+    return sendJSON(res, 400, { message: 'Invalid user ID format' });
+  }
+
+  const users = await readUsersFromFile();
+
+  const userIndex = users.findIndex((user) => user.id === userId);
+  if (userIndex === -1) {
+    return sendJSON(res, 404, { message: 'User not found' });
+  }
+
+  try {
+    const userData: User = await parseBody(req);
+    const user = users[userIndex];
+    users[userIndex] = { ...user, ...userData };
+    sendJSON(res, 200, users[userIndex] as User);
+    await writeUsersToFile(users);
+  } catch (error) {
+    sendJSON(res, 500, { message: 'Error parsing request body' });
+  }
+};
+
+const deleteUser = async (req: IncomingMessage, res: ServerResponse, userId: string) => {
+  if (!uuidValidate(userId)) {
+    return sendJSON(res, 400, { message: 'Invalid user ID format' });
+  }
+
+  const users = await readUsersFromFile();
+
+  const userIndex = users.findIndex((user) => user.id === userId);
+  if (userIndex === -1) {
+    return sendJSON(res, 404, { message: 'User not found' });
+  }
+
+  users.splice(userIndex, 1);
+  await writeUsersToFile(users);
+  res.writeHead(204);
+  res.end();
+};
+
+const getUsers = async (req: IncomingMessage, res: ServerResponse) => {
+  const users = await readUsersFromFile();
   sendJSON(res, 200, users);
 };
 
@@ -56,17 +136,47 @@ const notFound = (req: IncomingMessage, res: ServerResponse) => {
   sendJSON(res, 404, { message: 'Resource not found' });
 };
 
-const requestListener = (req: IncomingMessage, res: ServerResponse) => {
+const routeRequest = async (req: IncomingMessage, res: ServerResponse) => {
   const { method, url } = req;
+  const urlParts = url?.split('/').filter((part) => part);
 
-  if (url === '/api/users' && method === 'GET') {
-    getUsers(req, res);
+  if (urlParts && urlParts.length === 2 && urlParts[0] === 'api' && urlParts[1] === 'users') {
+    switch (method) {
+      case 'GET':
+        getUsers(req, res);
+        break;
+      case 'POST':
+        await createUser(req, res);
+        break;
+      default:
+        notFound(req, res);
+    }
+  } else if (
+    urlParts &&
+    urlParts.length === 3 &&
+    urlParts[0] === 'api' &&
+    urlParts[1] === 'users'
+  ) {
+    const userId = urlParts[2];
+    switch (method) {
+      case 'GET':
+        await getUserById(req, res, userId as string);
+        break;
+      case 'PUT':
+        await updateUser(req, res, userId as string);
+        break;
+      case 'DELETE':
+        deleteUser(req, res, userId as string);
+        break;
+      default:
+        notFound(req, res);
+    }
   } else {
     notFound(req, res);
   }
 };
 
-const server = createServer(requestListener);
+const server = createServer(routeRequest);
 
 const port = process.env.PORT || 3000;
 
