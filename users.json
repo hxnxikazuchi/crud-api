@@ -1,0 +1,20 @@
+[
+  {
+    "id": "cfb70bc6-34cc-4fee-b1bc-8a9883b458d9",
+    "username": "Luffy",
+    "age": 20,
+    "hobbies": [
+      "skiing",
+      "hokkey"
+    ]
+  },
+  {
+    "id": "1016d15e-a947-4b3e-ada7-1566987f6a63",
+    "username": "KAKUZU",
+    "age": 50,
+    "hobbies": [
+      "games",
+      "drinks"
+    ]
+  }
+]
