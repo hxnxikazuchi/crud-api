@@ -1,6 +1,6 @@
 import { createServer } from 'http';
 import dotenv from 'dotenv';
-import { routeRequest } from './controllers/index.js';
+import { routeRequest } from './controllers';
 dotenv.config({ path: './config.env' });
 
 const server = createServer(routeRequest);

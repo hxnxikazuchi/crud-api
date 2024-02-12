@@ -2,11 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import type { User } from '../types';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const USERS_FILE = path.join(__dirname, '/../users.json');
 
