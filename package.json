@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node-dev src/index.ts"
+    "start:dev": "ts-node-dev server.ts",
+    "start:prod": "ts-node-dev server.ts"
   },
   "author": "hxnxikazuchi",
   "license": "ISC",
@@ -31,6 +32,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "dotenv": "^16.4.2"
+    "dotenv": "^16.4.2",
+    "uuid": "^9.0.1"
   }
 }
