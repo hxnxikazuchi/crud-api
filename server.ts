@@ -34,7 +34,21 @@ const sendJSON = (res: ServerResponse, statusCode: number, data: object) => {
   res.end(JSON.stringify(data));
 };
 
-const getUsers = (req: IncomingMessage, res: ServerResponse) => {
+const parseBody = (req: IncomingMessage): Promise<never> => {
+  return new Promise((resolve, reject) => {
+    try {
+      let body = '';
+      req.on('data', (chunk) => {
+        body += chunk.toString();
+      });
+      req.on('end', () => {
+        resolve(JSON.parse(body));
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
   sendJSON(res, 200, users);
 };
 
