@@ -2,11 +2,12 @@
   "name": "crud-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "build/server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "ts-node-dev server.ts",
-    "start:prod": "ts-node-dev server.ts"
+    "start:dev": "ts-node-dev --respawn server.ts",
+    "build": "tsc",
+    "start:prod": "npm run build && node build/server.js"
   },
   "author": "hxnxikazuchi",
   "license": "ISC",
