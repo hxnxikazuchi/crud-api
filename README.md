@@ -1,1 +1,2 @@
-# crud-api
+# npm run start:dev - for launching a *dev* environment. There are already two record you can start work with
+# npm run start: prod - for launching a *production* environment. There is no ready records to use. So, you should create.
