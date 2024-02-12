@@ -2,17 +2,11 @@ import { createServer, IncomingMessage, ServerResponse } from 'http';
 import dotenv from 'dotenv';
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 import { promises as fs } from 'fs';
+import type { User } from './types';
 
 dotenv.config({ path: './config.env' });
 
 const USERS_FILE = `${__dirname}/users.json`;
-
-type User = {
-  id: string;
-  username: string;
-  age: number;
-  hobbies: string[];
-};
 
 const readUsersFromFile = async (): Promise<User[]> => {
   try {
